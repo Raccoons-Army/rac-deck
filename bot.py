@@ -37,12 +37,13 @@ def loadConfigFile():
 
 # Func that resets the nick/channel (it will reset based on your changeMode value on the config.ini file) to its default value
 def resetValues():
+
     # check what mode the bot is on
     if (json.loads(config.get("MAIN", "changeMode")) == "nick"):
         # resets the user's nick
         # loop through all servers and resets its nickname
         loopChangeNickname(json.loads(config.get("NICK", "defaultNick")))
-        
+
         print("Reset all your nicks!")
     else:
         # resets the channels' name
@@ -57,7 +58,7 @@ def changeNickname(newNick):
 
     # calls the global var
     global lastNickname
-   
+
     # cheks if nicks are the same, if its true, that means the user pressed the same keybind, that is, will redo the nickname changes
     if (newNick != me.nick):
         # store current nickname
@@ -94,6 +95,7 @@ def changeNickname(newNick):
 
 # Func that loops throught all the servers and changes/resets the user's nick
 def loopChangeNickname(newNick):
+
     # loop through all servers and change its nickname
     for guild in client.guilds:
         # finds the user in the current guild
@@ -165,6 +167,8 @@ def assignUser():
 
 ####################### BOT STUFF #######################
 
+### EVENTS ###
+
 @client.event
 async def on_ready():
 
@@ -175,9 +179,9 @@ async def on_ready():
     assignUser()
 
     # checks if user wants its nick/channel (it will reset based on your changeMode value on the config.ini file) to its default value
-    if (json.loads(config.get("MAIN", "resetOnClose")) == True):
-        # registers a function to be executed when the program is terminating
-        atexit.register(resetValues)
+    # if (json.loads(config.get("MAIN", "resetOnClose")) == True):
+    #     # registers a function to be executed when the program is terminating
+    #     atexit.register(resetValues)
 
     # create a thread for keyboard stuff
     keyboardThread = Thread(target=createHotKeys, args=())
@@ -188,6 +192,8 @@ async def on_ready():
     await tree.sync()
     print("Bot ready!")
 
+
+### COMMANDS ###
 
 @tree.command(name="test", description="Test if bot is working")
 async def test(interaction: discord.Interaction):
