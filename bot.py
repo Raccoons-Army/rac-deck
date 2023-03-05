@@ -42,7 +42,7 @@ def changeNickname(newNick):
 
     # calls the global var
     global lastNickname
-
+    print(me.nick)
     # cheks if nicks are the same, if its true, that means the user pressed the same keybind, that is, will redo the nickname changes
     if (newNick != me.nick):
         # store current nickname
@@ -52,7 +52,7 @@ def changeNickname(newNick):
         newNick = lastNickname
 
     # checks if user wants to change its nickname in all the server the bot is on
-    if (1 == 1):
+    if (json.loads(config.get("NICK", "changeOnAllServers")) == True):
         try:
             # loop through all servers and change its nickname
             for guild in client.guilds:
@@ -105,15 +105,32 @@ def createHotKeys():
     if (mode == "nick"):
         for hotkey in hotkeys:
             keyboard.add_hotkey(hotkey, changeNickname,
-                                args=json.loads(config.get("NICK", "nicknames"))[i])
+                                args=[json.loads(config.get("NICK", "nicknames"))[i]])
             i += 1
     else:
         for hotkey in hotkeys:
             keyboard.add_hotkey(hotkey, changeNickname,
-                                args=json.loads(config.get("CHANNEL", "channelNames"))[i])
+                                args=[json.loads(config.get("CHANNEL", "channelNames"))[i]])
             i += 1
 
     print("HotKeys created!")
+
+
+# Func to assign user object
+def assignUser():
+    # load user to me global var
+    global me
+
+    # checks the mode
+    if (json.loads(config.get("MAIN", "changeMode")) == "nick"):
+        # assign me
+        me = client.get_guild(json.loads(config.get("NICK", "serversIds"))[0]
+                              ).get_member(json.loads(config.get("MAIN", "myId")))
+        
+    else:
+        # assign me
+        me = client.get_guild(json.loads(config.get("CHANNEL", "serverId"))).get_member(
+            json.loads(config.get("MAIN", "myId")))
 
 
 ####################### BOT STUFF #######################
@@ -123,10 +140,9 @@ async def on_ready():
 
     # load config file
     loadConfigFile()
-    
-    # load user to me global var
-    global me
-    me = client.guilds[0].get_member(json.loads(config.get("MAIN", "myId")))
+
+    # assign user
+    assignUser()
 
     # create a thread for keyboard stuff
     keyboardThread = Thread(target=createHotKeys, args=())
@@ -159,7 +175,7 @@ async def info(interaction: discord.Interaction):
     await interaction.response.send_message("I'm working!")
 
 
-@tree.command(name="change", description="change name", guild=discord.Object(id=721109103887515749))
+@tree.command(name="change", description="change name")
 async def change(interaction: discord.Interaction,  member: discord.Member):
     """Change command."""
     await member.edit(nick="test")
