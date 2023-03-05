@@ -1,31 +1,55 @@
-# env file
+# imports
 import os
-from dotenv import load_dotenv
-
-# discord
+from dotenv import load_dotenv      # env file
 import discord
-from discord import app_commands
+from discord import app_commands    # discord lib
+from threading import Thread        # thread
+import asyncio                      # asyncio
+import keyboard                     # keyboard
+import configparser                 # config parser
+import json                         # json
 
-# thread
-from threading import Thread
-import asyncio
 
-# keyboard
-import keyboard
+# global
+me = None               # discord's user obj
+lastNickname = None     # user's last nickname
+config = None           # config
 
+# bot stuff
+intents = discord.Intents.default()
+intents.members = True
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
 
 # read env file
 load_dotenv()
 
-# global
-# this will store the member, so i can use him on the changeNickname function
-me = None
+
+####################### DEFINING STUFF #######################
+
+# Func that reads the config file
+def loadConfigFile():
+    global config
+    config = configparser.RawConfigParser()
+    configFilePath = "./config.ini"
+    config.read(configFilePath)
 
 
 # Func to change the nickname
 # note: since i need to deal with async functions (the discord stuff) and this function (changeNickname) can't be async cuz the keyboard stuff isnt async,
 # i gotta create tasks instead to deal with it
 def changeNickname(newNick):
+
+    # calls the global var
+    global lastNickname
+
+    # cheks if nicks are the same, if its true, that means the user pressed the same keybind, that is, will redo the nickname changes
+    if (newNick != me.nick):
+        # store current nickname
+        lastNickname = me.nick  # TO DO
+    else:
+        # undos the nickname value
+        newNick = lastNickname
 
     # checks if user wants to change its nickname in all the server the bot is on
     if (1 == 1):
@@ -61,26 +85,48 @@ def changeNickname(newNick):
             print("Nick changed")
 
 
+# Func to change a channel's name
+def changeChannelName():
+    print("TO-DO")
+
+
 # Func to create the hotkeys and listen them
 def createHotKeys():
-    keyboard.add_hotkey("alt + 1", changeNickname,
-                        args=["416e6472e94c52656973"])
-    keyboard.add_hotkey("alt + 2", changeNickname,
-                        args=["testT"])
-    keyboard.add_hotkey("ctrl + c", quit)
+
+    # get mode and hotkeys from config file
+    mode = json.loads(config.get("MAIN", "changeMode"))
+    hotkeys = json.loads(config.get("HOTKEYS", "hotkeys"))
+
+    # counter
+    i = 0
+
+    # check mode selected
+    # note: here im repeating the for loop basically, but its more efficient this way, cuz like this, i dont have to perform a if statement at each iteration
+    if (mode == "nick"):
+        for hotkey in hotkeys:
+            keyboard.add_hotkey(hotkey, changeNickname,
+                                args=json.loads(config.get("NICK", "nicknames"))[i])
+            i += 1
+    else:
+        for hotkey in hotkeys:
+            keyboard.add_hotkey(hotkey, changeNickname,
+                                args=json.loads(config.get("CHANNEL", "channelNames"))[i])
+            i += 1
 
     print("HotKeys created!")
 
 
-# bot stuff
-intents = discord.Intents.default()
-intents.members = True
-client = discord.Client(intents=intents)
-tree = app_commands.CommandTree(client)
-
+####################### BOT STUFF #######################
 
 @client.event
 async def on_ready():
+
+    # load config file
+    loadConfigFile()
+    
+    # load user to me global var
+    global me
+    me = client.guilds[0].get_member(json.loads(config.get("MAIN", "myId")))
 
     # create a thread for keyboard stuff
     keyboardThread = Thread(target=createHotKeys, args=())
@@ -104,7 +150,6 @@ async def assign(interaction: discord.Interaction):
     global me
     me = interaction.user
     await me.edit(nick="test")
-    # AQUI SE CALHAR VOU TER DE GRAVAR TMB O SERVER E O USER VAI TER DE DAR ASSIGN EM TODOS OS SERVERS Q QUER O BOT
     await interaction.response.send_message("You are assigned!")
 
 
