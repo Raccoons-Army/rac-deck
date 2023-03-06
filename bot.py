@@ -13,13 +13,17 @@ from Models.main import Main        # import Channel class
 from Models.channel import Channel  # import Channel class
 from Models.nick import Nick        # import Channel class
 
-# global
+
+####################### DEFINING STUFF #######################
+
+# globals
 config = None               # config
 m: Main = None              # main object
 c: Channel = None           # channel object
 n: Nick = None              # nick object
 me = None                   # discord's user obj
 lastNickname = None         # user's nickname before being changed
+defaultNicknames = []       # default nicknames
 lastChannelsName = []       # channels name before being changed
 defaultChannelsName = []    # default channels name
 
@@ -33,8 +37,7 @@ tree = app_commands.CommandTree(client)
 load_dotenv()
 
 
-####################### DEFINING STUFF #######################
-
+### Load / Reset ###
 # Func that reads the config file and maps it to objects
 def loadConfigFile():
     global config
@@ -54,11 +57,10 @@ def loadConfigFile():
 
         n = Nick(json.loads(config.get("NICK", "myId")),
                  json.loads(config.get("NICK", "changeOnAllServers")),
-                 json.loads(config.get("NICK", "defaultNicks")),
                  json.loads(config.get("NICK", "data")))
 
-        global lastNickname
-        lastNickname = n.defaultNicks[0]["nick"] if len(n.defaultNicks) > 0 else None
+        # global lastNickname
+        # lastNickname =
 
     else:
         c = Channel(json.loads(config.get("CHANNEL", "serverId")),
@@ -70,19 +72,11 @@ def resetValues():
 
     # check what mode the bot is on
     if (m.changeMode == "nick"):
-        # resets the user's nick if defined in config.ini file
-        if (len(n.defaultNicks) == 0):
-            return
 
-        # loop through all servers and resets its nickname
-        for dn in n.defaultNicks:
-            # finds the user in the current guild
-            findMe = client.get_guild(dn["serverId"]).get_member(me.id)
-
-            # changes its nickname
+        # resets all nicks to their value before being changed
+        for d in defaultNicknames:
             msg = asyncio.run_coroutine_threadsafe(
-                findMe.edit(nick=dn["nick"]), client.loop)
-            # msg.result(timeout=15)
+                client.get_guild(d["serverId"]).get_member(me.id).edit(nick=d["nick"]), client.loop)
 
         print("Reseted all your nicks!")
     else:
@@ -90,7 +84,7 @@ def resetValues():
         if (len(lastChannelsName) > 0):
             loopChangeChannelsName(defaultChannelsName)
 
-        print("Reset all your channels' name!")
+        print("Reseted all your channels' name!")
 
 
 # Func to load values on start
@@ -104,22 +98,32 @@ def loadValuesOnStart():
         loopChangeChannelsName(c.data)
 
 
+### Nick mode ###
+
+# Func that stores the original user's nickname
+def saveOriginalNickname():
+
+    # stores channels' name before making changes. This will then help to reset their names
+    for d in n.data:
+        defaultNicknames.append(
+            {"serverId": d["serverId"], "nick": client.get_guild(d["serverId"]).get_member(n.userId).nick})
+
+
+# Func to loop and and change all nicks
 def loopChangeNickname(newNick):
 
     # loop through all servers and change its nickname
     for guild in client.guilds:
-        # finds the user in the current guild
-        findMe = guild.get_member(me.id)
 
         # changes its nickname
         msg = asyncio.run_coroutine_threadsafe(
-            findMe.edit(nick=newNick), client.loop)
+            guild.get_member(me.id).edit(nick=newNick), client.loop)
         # msg.result(timeout=15)
 
 
 # Func to change the nickname
-# note: since i need to deal with async functions (the discord stuff) and this function (changeNickname) can't be async cuz the keyboard stuff isnt async,
-# i gotta create tasks instead to deal with it
+# note: since i need to deal with async functions (the discord stuff) and this function can't be async cuz the keyboard stuff isnt async,
+# i gotta use asyncio do deal with it
 def changeNickname(newNick):
 
     # calls the global var
@@ -159,8 +163,10 @@ def changeNickname(newNick):
             print("Nick changed")
 
 
+### Channel mode ###
+
 # Func that stores the original channels' name
-def saveOrigianlChannelName():
+def saveOriginalChannelName():
 
     # stores channels' name before making changes. This will then help to reset their names
     for d in c.data:
@@ -175,6 +181,8 @@ def loopChangeChannelsName(data):
 
 
 # Func to change a channel's name
+# note: since i need to deal with async functions (the discord stuff) and this function can't be async cuz the keyboard stuff isnt async,
+# i gotta use asyncio do deal with it
 def changeChannelName(newName, channelId):
     channel = client.get_channel(channelId)
 
@@ -202,6 +210,8 @@ def assignUser():
     # assign me
     me = client.get_guild(n.data[0]["serverId"]).get_member(n.userId)
 
+
+### Hotkeys ###
 
 # Func to create the hotkeys and listen them
 def createHotKeys():
@@ -233,7 +243,7 @@ def createHotKeys():
 
 ####################### BOT STUFF #######################
 
-### EVENTS ###
+### Events ###
 
 @client.event
 async def on_ready():
@@ -244,9 +254,12 @@ async def on_ready():
     # assign user if in 'nick' mode
     if (m.changeMode == "nick"):
         assignUser()
+
+        # saves user's nicks
+        saveOriginalNickname()
     else:
         # saves channels' name
-        saveOrigianlChannelName()
+        saveOriginalChannelName()
 
     # load nick/channel if changeOnStart value (from config.ini) is true
     if (m.changeOnStart == True):
@@ -267,33 +280,11 @@ async def on_ready():
     print("Bot ready!")
 
 
-### COMMANDS ###
+### Commands ###
 
 @ tree.command(name="test", description="Test if bot is working")
 async def test(interaction: discord.Interaction):
     """Test command."""
-    await interaction.response.send_message("I'm working!")
-
-
-@ tree.command(name="assign", description="Assign yourself so bot knows that has to change your name")
-async def assign(interaction: discord.Interaction):
-    """Assign command."""
-    global me
-    me = interaction.user
-    await me.edit(nick="test")
-    await interaction.response.send_message("You are assigned!")
-
-
-@ tree.command(name="info", description="Gives your current server id")
-async def info(interaction: discord.Interaction):
-    """Info command."""
-    await interaction.response.send_message("I'm working!")
-
-
-@ tree.command(name="change", description="change name")
-async def change(interaction: discord.Interaction,  member: discord.Member):
-    """Change command."""
-    await member.edit(nick="test")
     await interaction.response.send_message("I'm working!")
 
 client.run(os.getenv('BOT_TOKEN'))
