@@ -1,5 +1,4 @@
-
-# Main class, stores all the channel data from config.ini and its functions
+# Channel class, stores all the channel data from config.ini
 class Channel:
     """
     serverId: server id where the channels are

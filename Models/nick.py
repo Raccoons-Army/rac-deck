@@ -1,4 +1,4 @@
-# Main class, stores all the nick data from config.ini and its functions
+# Nick class, stores all the nick data from config.ini
 class Nick:
 
     """
@@ -8,8 +8,7 @@ class Nick:
     data: data to be mapped into hotkeys
     """
 
-    def __init__(self, userId, changeOnAllServers: bool, defaultNicks: dict, data: dict):
+    def __init__(self, userId, changeOnAllServers: bool, data: dict):
         self.userId = userId
         self.changeOnAllServers = changeOnAllServers
-        self.defaultNicks = defaultNicks
         self.data = data
