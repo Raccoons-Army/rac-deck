@@ -3,7 +3,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from 'react';
-import { Table } from 'reactstrap';
+import { Table, FormGroup, Input } from 'reactstrap';
 
 export default function HotkeysTable({ dataType }) {
 
@@ -70,9 +70,14 @@ export default function HotkeysTable({ dataType }) {
                             @mdo
                         </td>
                         <td>
-                            @mdo
+                            <FormGroup switch>
+                                <Input id="changeOnStart"
+                                    name="changeOnStart"
+                                    type="switch"
+                                />
+                            </FormGroup>
                         </td>
-                        <td align='center' onClick={() => handleDelete(2)}>
+                        <td onClick={() => handleDelete(2)}>
                             <FontAwesomeIcon color='red' icon={faTrash} className="mr-2" />
                         </td>
                     </tr>

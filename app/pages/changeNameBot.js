@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 // components
-import { Form, Row, Col, FormGroup, Label, Input, Button, Table } from 'reactstrap';
+import { Form, Row, Col, FormGroup, Label, Input, Button } from 'reactstrap';
 import HotkeysTable from '@/components/tables/HotkeysTable';
 import HotkeyInput from '@/components/others/HotkeyInput'
 
