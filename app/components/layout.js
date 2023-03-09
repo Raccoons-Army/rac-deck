@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SideBar from "./sideBar/SideBar";
+import SideBar from "./sidebar/SideBar";
 import Content from "./sidebar/Content";
 
 export default function Layout({ children }) {

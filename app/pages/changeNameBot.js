@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { Form, Row, Col, FormGroup, Label, Input, Button } from 'reactstrap';
 import HotkeysTable from '@/components/tables/HotkeysTable';
 import HotkeyInput from '@/components/others/HotkeyInput'
+import AddHotkeyModal from '@/components/modals/AddHotkeyModal';
 
 // custom hooks
-import { useFormStringInput, useFormSwitchInput, useFormSelectBox } from '@/utility/customHooks'
+import { useFormStringInput, useFormSwitchInput, useFormSelectBox, useModal } from '@/utility/customHooks'
 
 export default function ChangeNameBot() {
 
@@ -22,9 +23,23 @@ export default function ChangeNameBot() {
     // channel info
     const serverId = useFormStringInput("")
 
+    // add hotkey modal
+    const modalAddHotkey = useModal(false);
 
     return (
         <>
+
+            {/*Modals*/}
+            {
+                modalAddHotkey.show && (
+                    <AddHotkeyModal
+                        fade={false}
+                    // modalTransition={Transiti}
+                        botMode={botMode.value}
+                    />
+                )
+            }
+
             <h2>Main</h2>
             <hr></hr>
             <Form>
@@ -70,7 +85,7 @@ export default function ChangeNameBot() {
                         <Label for="resetHotkey">
                             Reset Hotkey
                         </Label>
-                   <HotkeyInput/>
+                        <HotkeyInput />
 
                     </Col>
                     <Col md={3}>
@@ -137,16 +152,15 @@ export default function ChangeNameBot() {
                 <Button type='button' color='success' >
                     Save
                 </Button>
-
-                <br />
-                <br />
+                <br /><br />
             </Form>
 
             <h2>Hotkeys</h2>
             <hr></hr>
+            <Button type='button' color='success' onClick={modalAddHotkey.handleOpen}>Add</Button>
+            <br /><br />
             <Row>
                 {botMode.value ? (<HotkeysTable dataType={botMode.value} />) : (<>Select a mode</>)}
-
             </Row>
 
 

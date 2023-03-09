@@ -15,7 +15,7 @@ export default function HotkeysTable({ dataType }) {
         console.log("Table content: " + dataType);
         if (dataType == "Nick") {
             //TODO
-            setColumns(["Server", "Nick"])
+            setColumns(["Change on all servers", "Nick"])
         } else {
             //TODO
             setColumns(["Channel", "Name"])
@@ -61,7 +61,12 @@ export default function HotkeysTable({ dataType }) {
                 <tbody>
                     <tr>
                         <td >
-                            Mark
+                            {dataType == "Nick" ? <FormGroup switch>
+                                <Input id="changeOnStart"
+                                    name="changeOnStart"
+                                    type="switch"
+                                />
+                            </FormGroup> : "someshit"}
                         </td>
                         <td>
                             Otto
