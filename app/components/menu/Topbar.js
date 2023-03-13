@@ -19,7 +19,7 @@ const Topbar = ({ toggleSidebar }) => {
             className="navbar shadow-sm p-3 mb-5 bg-white rounded"
             expand="md"
         >
-            <Button color="info" onClick={toggleSidebar}>
+            <Button color="primary" outline onClick={toggleSidebar}>
                 <FontAwesomeIcon icon={faAlignLeft} />
             </Button>
             <NavbarToggler onClick={toggleTopbar} />

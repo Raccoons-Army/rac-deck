@@ -12,6 +12,7 @@ import { useFormStringInput, useFormSwitchInput, useFormSelectBox, useModal } fr
 export default function ChangeNameBot() {
 
     // main info
+    const [botStatus, setBotStatus] = useState("off");
     const botToken = useFormStringInput("test")
     const changeOnStart = useFormSwitchInput(false);
     const botMode = useFormSelectBox(["Nick", "Channel"], "Nick")
@@ -26,6 +27,34 @@ export default function ChangeNameBot() {
     // add hotkey modal
     const modalAddHotkey = useModal(false);
 
+    // handle status bot
+    const handleStatusBot = () => {
+        switch (botStatus) {
+            case "off":
+                //TODO -> turn on the bot -> while is booting the process, set the botStatus to loading
+                break;
+            case "on":
+                 //TODO -> turn off the bot
+                 break;
+            default:
+                break;
+        }
+    }
+
+    // render bot's status button
+    const renderBotStatusButton = () => {
+        switch (botStatus) {
+            case "off":
+                return <Button type='button' onClick={handleStatusBot} color='success'>Turn On</Button>
+            case "on":
+                return <Button type='button' onClick={handleStatusBot} color='danger'>Turn Off</Button>
+            case "loading":
+                return <Button type='button' onClick={handleStatusBot} color='info' disabled>Booting</Button>
+            default:
+                break;
+        }
+    }
+
     return (
         <>
 
@@ -34,13 +63,18 @@ export default function ChangeNameBot() {
                 modalAddHotkey.show && (
                     <AddHotkeyModal
                         fade={false}
-                    // modalTransition={Transiti}
+                        // modalTransition={Transiti}
                         botMode={botMode.value}
                     />
                 )
             }
 
-            <h2>Main</h2>
+            <h3>Info</h3>
+            <hr></hr>
+            {renderBotStatusButton()}
+            <br /><br />
+
+            <h3>Main</h3>
             <hr></hr>
             <Form>
                 <Row>
@@ -155,7 +189,7 @@ export default function ChangeNameBot() {
                 <br /><br />
             </Form>
 
-            <h2>Hotkeys</h2>
+            <h3>Hotkeys</h3>
             <hr></hr>
             <Button type='button' color='success' onClick={modalAddHotkey.handleOpen}>Add</Button>
             <br /><br />

@@ -1,11 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faHome,
-  faBriefcase,
-  faPaperPlane,
-  faQuestion,
-  faImage,
-  faCopy,
+  faLink,
+  faRobot,
+  faCoins
 } from "@fortawesome/free-solid-svg-icons";
 import { NavItem, NavLink, Nav } from "reactstrap";
 import classNames from "classnames";
@@ -23,17 +20,24 @@ const SideBar = ({ isOpen, toggle }) => (
     </div>
     <div className="side-menu">
       <Nav vertical className="list-unstyled pb-3">
+        <Link href="/connections">
+          <NavItem className="nav-link">
+            <FontAwesomeIcon icon={faLink} className="mr-2" />
+            {' '}Your Connections
+          </NavItem>
+        </Link>
+
         <Link href="/changeNameBot" >
           <NavItem className="nav-link">
-            <FontAwesomeIcon icon={faBriefcase} className="mr-2" />
-            Change Name Bot
+            <FontAwesomeIcon icon={faRobot} className="mr-2" />
+            {' '}Change Name Bot
           </NavItem>
         </Link>
 
         <Link href="/rewards">
           <NavItem className="nav-link">
-            <FontAwesomeIcon icon={faImage} className="mr-2" />
-            Reward Manager
+            <FontAwesomeIcon icon={faCoins} className="mr-2" />
+            {' '}Reward Manager
           </NavItem>
         </Link>
       </Nav>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import SideBar from "./sidebar/SideBar";
-import Content from "./sidebar/Content";
+import SideBar from "./menu/SideBar";
+import Content from "./menu/Content";
 
 export default function Layout({ children }) {
 
@@ -13,8 +13,6 @@ export default function Layout({ children }) {
                 <div className="App wrapper">
                     <SideBar toggle={toggleSidebar} isOpen={sidebarIsOpen} />
                     <Content toggleSidebar={toggleSidebar} sidebarIsOpen={sidebarIsOpen} >{children}</Content>
-
-
                 </div>
 
             </main>
