@@ -1,22 +1,74 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
+// axios
+import axios from 'axios';
+import { parse } from 'cookie';
+// components
 import { Button } from 'reactstrap';
 
-export default function Rewards() {
+// before the page loads, pass user access token value as 
+export async function getServerSideProps(context) {
+
+    // parse token
+    const twitchAccessToken = JSON.parse(context.req.cookies.twitchAcessTokenInfo)
+   
+    // if it has twitch access token on a cookie
+    if (context.req.cookies.twitchAcessTokenInfo) {
+
+        // gets the user info
+        try {
+            const response = await axios.get(
+                'https://api.twitch.tv/helix/users',
+                {
+                    headers: {
+                        'Authorization': 'Bearer ' + twitchAccessToken.access_token,
+                        'Client-Id': process.env.twitchClientId
+                    }
+                }
+            );
+
+            console.log(response.data);
+
+            return { props: { "twitchAccessToken": twitchAccessToken.access_token } }
+
+        } catch (error) {
+            // console.error(error);
+
+            return { props: { "twitchAccessToken": "" } }
+
+        }
+
+        // pass it to props
+    }
+
+    return { props: { "twitchAccessToken": "" } }
+
+}
+
+
+export default function Rewards(props) {
 
     const [isDiscordConnected, setIsDiscordConnected] = useState(false);
     const [isTwitchConnected, setIsTwitchConnected] = useState(false);
-
-    // TODO -> check if already connected with discord, twitch, etc - 
-    // - change color and text of buttons dependending on the connection state(connect, disconnect)
 
     const handleDiscordConnection = () => {
         // call nextjs api endpoint    
     }
 
 
-    const handleTwitchConnection = (state) => {
-        // call nextjs api endpoint    
+    const handleTwitchConnection = async (state) => {
+        const newWindow = window.open(`https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.twitchClientId}&redirect_uri=http://localhost:3000/api/twitchAuth&scopes=channel%3Aread%3Aredemptions%20channel%3Aread%3Aredemptions%20user%3Aread%3Aemail`, 'noopener,noreferrer')
+        if (newWindow) newWindow.opener = null
     }
+
+    // if twitch is connected
+    useEffect(() => {
+
+        setIsTwitchConnected(true);
+
+    }, [props.twitchAccessToken])
+
+
     return (
         <>
             <h3>Your Connections</h3>
@@ -53,7 +105,7 @@ export default function Rewards() {
                     </svg>
                 </Button>
                 : // not connected
-                <Button color="success" onClick={handleTwitchConnection}>
+                <Button color="success" onClick={handleTwitchConnection} >
                     Connect  {' '}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-twitch" viewBox="0 0 16 16">
                         <path d="M3.857 0 1 2.857v10.286h3.429V16l2.857-2.857H9.57L14.714 8V0H3.857zm9.714 7.429-2.285 2.285H9l-2 2v-2H4.429V1.143h9.142v6.286z" />
