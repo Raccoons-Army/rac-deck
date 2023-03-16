@@ -9,11 +9,10 @@ import { Button } from 'reactstrap';
 // before the page loads, pass user access token value as 
 export async function getServerSideProps(context) {
 
-    // parse token
-    const twitchAccessToken = JSON.parse(context.req.cookies.twitchAcessTokenInfo)
-   
     // if it has twitch access token on a cookie
     if (context.req.cookies.twitchAcessTokenInfo) {
+        // parse cookie
+        const twitchAccessToken = JSON.parse(context.req.cookies.twitchAcessTokenInfo)
 
         // gets the user info
         try {
@@ -38,7 +37,7 @@ export async function getServerSideProps(context) {
 
         }
 
-        // pass it to props
+        // pass it to props}
     }
 
     return { props: { "twitchAccessToken": "" } }
@@ -64,7 +63,7 @@ export default function Rewards(props) {
     // if twitch is connected
     useEffect(() => {
 
-        setIsTwitchConnected(true);
+        if (props.twitchAccessToken) setIsTwitchConnected(true);
 
     }, [props.twitchAccessToken])
 
