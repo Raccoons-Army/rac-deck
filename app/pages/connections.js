@@ -7,8 +7,6 @@ import { Button } from 'reactstrap';
 // before the page loads, pass user access token value as 
 export async function getServerSideProps(context) {
 
-    console.log(context.req.cookies);
- 
     let props = {};
     // if it has twitch access token on a cookie
     if (context.req.cookies.twitchAcessTokenInfo) {
