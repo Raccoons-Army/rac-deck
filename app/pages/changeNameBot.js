@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 // auth
-import {withAuthDiscord} from '@/components/auth/withAuthDiscord'
+import { withAuthDiscord } from '@/components/auth/withAuthDiscord'
 
 // components
 import { Form, Row, Col, FormGroup, Label, Input, Button } from 'reactstrap';
@@ -14,8 +14,13 @@ import { useFormStringInput, useFormSwitchInput, useFormSelectBox, useModal } fr
 
 // server side
 export const getServerSideProps = withAuthDiscord(context => {
-    // Your normal `getServerSideProps` code here
-    return { props: {} };
+    let props = {}
+    
+    // define props to sidebar read them
+    props.twitchAccessToken = context.req.cookies.twitchAcessTokenInfo ? JSON.parse(context.req.cookies.twitchAcessTokenInfo) : {};
+    props.discordAccessToken = context.req.cookies.discordAcessTokenInfo ? JSON.parse(context.req.cookies.discordAcessTokenInfo) : {};
+
+    return { props };
 });
 
 export default function ChangeNameBot() {
