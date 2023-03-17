@@ -10,8 +10,8 @@ export default async function handler(req, res) {
   // gets acess token
   try {
     response = await axios.post(
-      'https://id.twitch.tv/oauth2/token',
-      `client_id=${process.env.twitchClientId}&client_secret=${process.env.twitchSecretClient}&code=${req.query.code}&grant_type=authorization_code&redirect_uri=http://localhost:3000/connections`,
+      'https://discord.com/api/oauth2/token',
+      `client_id=${process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID}&client_secret=${process.env.NEXT_PUBLIC_DISCORD_CLIENT_SECRET}&code=${req.query.code}&grant_type=authorization_code&redirect_uri=http://localhost:3000/api/discordAuth`,
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -20,10 +20,10 @@ export default async function handler(req, res) {
     );
 
     // saves token in a cookie
-    res.setHeader('Set-Cookie', serialize('twitchAcessTokenInfo',  JSON.stringify(response.data), { path: '/' }));
+    res.setHeader('Set-Cookie', serialize('discordAcessTokenInfo',  JSON.stringify(response.data), { path: '/' }));
 
     // redirects to connections page
-    return res.status(200).redirect(307, `/connections?access_token=${response.data.access_token}&expires_in=${response.data.expires_in}&refresh_token=${response.data.refresh_token}`)
+    return res.status(200).redirect(307, `/connections`)
 
 
   } catch (error) {

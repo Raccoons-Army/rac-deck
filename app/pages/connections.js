@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-
 // axios
 import axios from 'axios';
-import { parse } from 'cookie';
 // components
 import { Button } from 'reactstrap';
 
 // before the page loads, pass user access token value as 
 export async function getServerSideProps(context) {
 
+    let props = {};
     // if it has twitch access token on a cookie
     if (context.req.cookies.twitchAcessTokenInfo) {
         // parse cookie
@@ -21,26 +20,53 @@ export async function getServerSideProps(context) {
                 {
                     headers: {
                         'Authorization': 'Bearer ' + twitchAccessToken.access_token,
-                        'Client-Id': process.env.twitchClientId
+                        'Client-Id': process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID
                     }
                 }
             );
 
-            console.log(response.data);
+            // console.log(response.data);
+            props.twitchAccessToken = twitchAccessToken.access_token;
 
-            return { props: { "twitchAccessToken": twitchAccessToken.access_token } }
 
         } catch (error) {
             // console.error(error);
-
-            return { props: { "twitchAccessToken": "" } }
 
         }
 
         // pass it to props}
     }
 
-    return { props: { "twitchAccessToken": "" } }
+    // if it has discord access token on a cookie
+    if (context.req.cookies.discordAcessTokenInfo) {
+        // parse cookie
+        const discordAccessToken = JSON.parse(context.req.cookies.discordAcessTokenInfo)
+
+        // gets the user info
+        try {
+            const response = await axios.get(
+                'https://discord.com/api/users/@me',
+                {
+                    headers: {
+                        'Authorization': 'Bearer ' + discordAccessToken.access_token,
+                        'Client-Id': process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID
+                    }
+                }
+            );
+
+            // console.log(response.data);
+
+            props.discordAccessToken = discordAccessToken.access_token;
+
+        } catch (error) {
+            // console.error(error);
+
+        }
+
+        // pass it to props}
+    }
+
+    return { props };
 
 }
 
@@ -51,14 +77,14 @@ export default function Rewards(props) {
     const [isTwitchConnected, setIsTwitchConnected] = useState(false);
 
     const handleDiscordConnection = () => {
-        const newWindow = window.open(`https://discord.com/oauth2/authorize?response_type=code&client_id=${process.env.twitchClientId}&redirect_uri=http://localhost:3000/api/twitchAuth&scopes=channel%3Aread%3Aredemptions%20channel%3Aread%3Aredemptions%20user%3Aread%3Aemail`, 'noopener,noreferrer')
+        const newWindow = window.open(`https://discord.com/oauth2/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID}&scope=email%20identify&redirect_uri=http://localhost:3000/api/discordAuth&prompt=consent
+        `, 'noopener,noreferrer')
         if (newWindow) newWindow.opener = null
-
     }
 
 
     const handleTwitchConnection = async (state) => {
-        const newWindow = window.open(`https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.twitchClientId}&redirect_uri=http://localhost:3000/api/discordAuth&scopes=email%20identify`, 'noopener,noreferrer')
+        const newWindow = window.open(`https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=http://localhost:3000/api/twitchAuth&scopes=channel%3Aread%3Aredemptions%20channel%3Aread%3Aredemptions%20user%3Aread%3Aemail`, 'noopener,noreferrer')
         if (newWindow) newWindow.opener = null
     }
 
@@ -66,8 +92,9 @@ export default function Rewards(props) {
     useEffect(() => {
 
         if (props.twitchAccessToken) setIsTwitchConnected(true);
+        if (props.discordAccessToken) setIsDiscordConnected(true);
 
-    }, [props.twitchAccessToken])
+    }, [props.twitchAccessToken, props.discordAccessToken])
 
 
     return (

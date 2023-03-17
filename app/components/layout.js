@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import SideBar from "./menu/SideBar";
 import Content from "./menu/Content";
 
-export default function Layout({ children }) {
+
+export default function Layout({ children }, props) {
 
     const [sidebarIsOpen, setSidebarOpen] = useState(true);
     const toggleSidebar = () => setSidebarOpen(!sidebarIsOpen);
@@ -11,7 +12,7 @@ export default function Layout({ children }) {
         <>
             <main>
                 <div className="App wrapper">
-                    <SideBar toggle={toggleSidebar} isOpen={sidebarIsOpen} />
+                    <SideBar toggle={toggleSidebar} isOpen={sidebarIsOpen} connections={children.props} />
                     <Content toggleSidebar={toggleSidebar} sidebarIsOpen={sidebarIsOpen} >{children}</Content>
                 </div>
 
