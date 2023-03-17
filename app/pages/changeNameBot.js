@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+
+// auth
+import { withAuthDiscord } from '@/components/auth/withAuthDiscord'
 
 // components
 import { Form, Row, Col, FormGroup, Label, Input, Button } from 'reactstrap';
@@ -8,6 +11,17 @@ import AddHotkeyModal from '@/components/modals/AddHotkeyModal';
 
 // custom hooks
 import { useFormStringInput, useFormSwitchInput, useFormSelectBox, useModal } from '@/utility/customHooks'
+
+// server side
+export const getServerSideProps = withAuthDiscord(context => {
+    let props = {}
+    
+    // define props to sidebar read them
+    props.twitchAccessToken = context.req.cookies.twitchAcessTokenInfo ? JSON.parse(context.req.cookies.twitchAcessTokenInfo) : {};
+    props.discordAccessToken = context.req.cookies.discordAcessTokenInfo ? JSON.parse(context.req.cookies.discordAcessTokenInfo) : {};
+
+    return { props };
+});
 
 export default function ChangeNameBot() {
 
@@ -34,8 +48,8 @@ export default function ChangeNameBot() {
                 //TODO -> turn on the bot -> while is booting the process, set the botStatus to loading
                 break;
             case "on":
-                 //TODO -> turn off the bot
-                 break;
+                //TODO -> turn off the bot
+                break;
             default:
                 break;
         }
