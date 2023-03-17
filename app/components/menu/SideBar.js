@@ -7,17 +7,18 @@ import {
 import { NavItem, NavLink, Nav } from "reactstrap";
 import classNames from "classnames";
 import Link from 'next/link'
+import { useEffect } from "react";
 
 export default function SideBar({ isOpen, toggle, connections }) {
 
-  console.log(connections);
+
   return (
     <div className={classNames("sidebar", { "is-open": isOpen })}>
       <div className="sidebar-header">
         <span color="info" onClick={toggle} style={{ color: "#fff" }}>
           &times;
         </span>
-        <h3>Rack Deck 🦝</h3>
+        <h3>Rac Deck 🦝</h3>
       </div>
       <div className="side-menu">
         <Nav vertical className="list-unstyled pb-3">

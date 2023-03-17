@@ -5,6 +5,7 @@ import Content from "./menu/Content";
 
 export default function Layout({ children }, props) {
 
+    // side bar
     const [sidebarIsOpen, setSidebarOpen] = useState(true);
     const toggleSidebar = () => setSidebarOpen(!sidebarIsOpen);
 
