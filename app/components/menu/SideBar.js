@@ -7,13 +7,10 @@ import {
 import { NavItem, NavLink, Nav } from "reactstrap";
 import classNames from "classnames";
 import Link from 'next/link'
-import { useEffect } from "react";
-
-// import SubMenu from "./SubMenu";
-
 
 export default function SideBar({ isOpen, toggle, connections }) {
 
+  console.log(connections);
   return (
     <div className={classNames("sidebar", { "is-open": isOpen })}>
       <div className="sidebar-header">
@@ -31,7 +28,7 @@ export default function SideBar({ isOpen, toggle, connections }) {
             </NavItem>
           </Link>
 
-          {connections.discord ?
+          {connections.discordAccessToken ?
             <Link href="/changeNameBot" >
               <NavItem className="nav-link">
                 <FontAwesomeIcon icon={faRobot} className="mr-2" />
@@ -42,7 +39,7 @@ export default function SideBar({ isOpen, toggle, connections }) {
             <></>}
 
 
-          {connections.twitch ?
+          {connections.twitchAccessToken ?
             <Link href="/rewards">
               <NavItem className="nav-link">
                 <FontAwesomeIcon icon={faCoins} className="mr-2" />

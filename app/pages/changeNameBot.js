@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
+// auth
+import {withAuthDiscord} from '@/components/auth/withAuthDiscord'
+
 // components
 import { Form, Row, Col, FormGroup, Label, Input, Button } from 'reactstrap';
 import HotkeysTable from '@/components/tables/HotkeysTable';
@@ -8,6 +11,12 @@ import AddHotkeyModal from '@/components/modals/AddHotkeyModal';
 
 // custom hooks
 import { useFormStringInput, useFormSwitchInput, useFormSelectBox, useModal } from '@/utility/customHooks'
+
+// server side
+export const getServerSideProps = withAuthDiscord(context => {
+    // Your normal `getServerSideProps` code here
+    return { props: {} };
+});
 
 export default function ChangeNameBot() {
 
@@ -34,8 +43,8 @@ export default function ChangeNameBot() {
                 //TODO -> turn on the bot -> while is booting the process, set the botStatus to loading
                 break;
             case "on":
-                 //TODO -> turn off the bot
-                 break;
+                //TODO -> turn off the bot
+                break;
             default:
                 break;
         }
