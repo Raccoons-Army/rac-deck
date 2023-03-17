@@ -51,12 +51,14 @@ export default function Rewards(props) {
     const [isTwitchConnected, setIsTwitchConnected] = useState(false);
 
     const handleDiscordConnection = () => {
-        // call nextjs api endpoint    
+        const newWindow = window.open(`https://discord.com/oauth2/authorize?response_type=code&client_id=${process.env.twitchClientId}&redirect_uri=http://localhost:3000/api/twitchAuth&scopes=channel%3Aread%3Aredemptions%20channel%3Aread%3Aredemptions%20user%3Aread%3Aemail`, 'noopener,noreferrer')
+        if (newWindow) newWindow.opener = null
+
     }
 
 
     const handleTwitchConnection = async (state) => {
-        const newWindow = window.open(`https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.twitchClientId}&redirect_uri=http://localhost:3000/api/twitchAuth&scopes=channel%3Aread%3Aredemptions%20channel%3Aread%3Aredemptions%20user%3Aread%3Aemail`, 'noopener,noreferrer')
+        const newWindow = window.open(`https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.twitchClientId}&redirect_uri=http://localhost:3000/api/discordAuth&scopes=email%20identify`, 'noopener,noreferrer')
         if (newWindow) newWindow.opener = null
     }
 
