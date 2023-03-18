@@ -3,67 +3,30 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 // components
 import { Button } from 'reactstrap';
+import { serialize } from 'cookie';
 
 // before the page loads, pass user access token value as 
 export async function getServerSideProps(context) {
-
+    
     let props = {};
+
     // if it has twitch access token on a cookie
     if (context.req.cookies.twitchAcessTokenInfo) {
-        // parse cookie
+        // parse cookies
         const twitchAccessToken = JSON.parse(context.req.cookies.twitchAcessTokenInfo)
 
-        // gets the user info
-        try {
-            const response = await axios.get(
-                'https://api.twitch.tv/helix/users',
-                {
-                    headers: {
-                        'Authorization': 'Bearer ' + twitchAccessToken.access_token,
-                        'Client-Id': process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID
-                    }
-                }
-            );
-
-            // console.log(response.data);
-            props.twitchAccessToken = twitchAccessToken.access_token;
-
-
-        } catch (error) {
-            // console.error(error);
-
-        }
-
-        // pass it to props}
+        // pass it to props
+        props.twitchAccessToken = twitchAccessToken.access_token;
     }
 
     // if it has discord access token on a cookie
     if (context.req.cookies.discordAcessTokenInfo) {
-        // parse cookie
+        // parse cookies
         const discordAccessToken = JSON.parse(context.req.cookies.discordAcessTokenInfo)
 
-        // gets the user info
-        try {
-            const response = await axios.get(
-                'https://discord.com/api/users/@me',
-                {
-                    headers: {
-                        'Authorization': 'Bearer ' + discordAccessToken.access_token,
-                        'Client-Id': process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID
-                    }
-                }
-            );
+        // pass it to props
+        props.discordAccessToken = discordAccessToken.access_token;
 
-            // console.log(response.data);
-
-            props.discordAccessToken = discordAccessToken.access_token;
-
-        } catch (error) {
-            // console.error(error);
-
-        }
-
-        // pass it to props}
     }
 
     return { props };
@@ -91,7 +54,6 @@ export default function Rewards(props) {
 
     // revoke access tokens
     const handleDisconnection = async (type) => {
-
         try {
             const response = await axios.post(
                 type == 'discord' ? 'https://discord.com/api/oauth2/token/revoke' : 'https://id.twitch.tv/oauth2/revoke',

@@ -7,10 +7,8 @@ import {
 import { NavItem, NavLink, Nav } from "reactstrap";
 import classNames from "classnames";
 import Link from 'next/link'
-import { useEffect } from "react";
 
 export default function SideBar({ isOpen, toggle, connections }) {
-
 
   return (
     <div className={classNames("sidebar", { "is-open": isOpen })}>
