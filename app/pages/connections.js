@@ -48,7 +48,7 @@ export default function Rewards(props) {
 
     // twitch
     const handleTwitchConnection = async (state) => {
-        const newWindow = window.open(`https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=http://localhost:3000/api/twitchAuth&scopes=channel%3Aread%3Aredemptions%20channel%3Aread%3Aredemptions%20user%3Aread%3Aemail`, 'noopener,noreferrer')
+        const newWindow = window.open(`https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=http://localhost:3000/api/twitchAuth&scope=channel%3Amanage%3Aredemptions%20user%3Aread%3Aemail`, 'noopener,noreferrer')
         if (newWindow) newWindow.opener = null
     }
 

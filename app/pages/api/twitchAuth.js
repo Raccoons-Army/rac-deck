@@ -33,10 +33,11 @@ export default async function handler(req, res) {
       );
 
       // saves token and streamer data in cookies
-      await res.setHeader('Set-Cookie', [
+      res.setHeader('Set-Cookie', [
         serialize('twitchAcessTokenInfo', JSON.stringify(responsePost.data), { httpOnly: true, path: '/' }),
-        serialize('streamerData', JSON.stringify(responseGet.data), { httpOnly: true, path: '/' })
+        serialize('streamerData', JSON.stringify(responseGet.data.data[0]), { httpOnly: true, path: '/' })
       ]);
+
 
       // redirects to connections page with success
       return res.status(200).redirect(307, `/connections`)
