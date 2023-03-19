@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 // axios
 import axios from 'axios';
 // auth
 import { withAuthTwitch } from '@/components/auth/withAuthTwitch'
+// custom hooks
+import { useModal } from '@/utility/customHooks'
 // components
 import { CardGroup, Card, CardBody, CardTitle, CardSubtitle, CardText, Button, Col } from 'reactstrap';
 import Image from 'next/image'
 import RewardSwitch from '@/components/others/RewardSwitch'
-import { InputGroup, FormGroup, Label, Input } from 'reactstrap';
+import AddRewardModal from '@/components/modals/AddRewardModal';
 
 // server side
 export const getServerSideProps = withAuthTwitch(async (context) => {
@@ -18,38 +20,75 @@ export const getServerSideProps = withAuthTwitch(async (context) => {
     props.discordAccessToken = context.req.cookies.discordAcessTokenInfo ? JSON.parse(context.req.cookies.discordAcessTokenInfo) : null;
     let streamerData = JSON.parse(context.req.cookies.streamerData);
 
+
+    // pass data to props
+    props.rewards = await getTwitchRewards(streamerData.id, props.twitchAccessToken.access_token); // get twitch rewards
+    props.streamerId = streamerData.id
+
+    // console.log(props.rewards);
+
+
+    return { props };
+});
+
+const getTwitchRewards = async (streamerId, token) => {
     // gets twitch rewards
     try {
         const response = await axios.get('https://api.twitch.tv/helix/channel_points/custom_rewards', {
             params: {
-                'broadcaster_id': streamerData.id,
+                'broadcaster_id': streamerId,
                 'only_manageable_rewards': true
             },
             headers: {
-                'Authorization': 'Bearer ' + props.twitchAccessToken.access_token,
+                'Authorization': 'Bearer ' + token,
                 'Client-Id': process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID
             }
         });
 
         // pass data to props
-        props.rewards = response.data.data;
-        props.streamerId = streamerData.id
+        return response.data.data
+
 
     } catch (error) {
         console.error(error);
+        return {}
     }
-
-    return { props };
-});
-
-
+}
 
 export default function Rewards(props) {
+
+    // add hotkey modal
+    const modalAddReward = useModal(false);
+    const [rewards, setRewards] = useState(props.rewards);
+
+    // callback to send to childs components
+    const reloadContent = async (streamerId, token) => {
+        setRewards(await getTwitchRewards(streamerId, token))
+    }
+
+
     return (
         <>
-            <CardGroup>
-                {props.rewards?.map((reward) => {
+            {/*Modals*/}
+            {
+                modalAddReward.show && (
+                    <AddRewardModal
+                        fade={false}
+                        token={props.twitchAccessToken.access_token}
+                        streamerId={props.streamerId}
+                        show={modalAddReward.show}
+                        close={modalAddReward.handleClose}
+                        reloadContent={reloadContent}
+                    // modalTransition={Transiti}
+                    />
+                )
+            }
 
+            {/*Add custom reward */}
+            <Button type='button' color='success' onClick={modalAddReward.handleOpen}>Add custom reward</Button>
+
+            <CardGroup>
+                {rewards?.map((reward) => {
                     return (
                         <Col key={reward.id} md={3} style={{ padding: 2 }} lg={3} sm={3} xs={8}>
                             <Card >
@@ -73,7 +112,11 @@ export default function Rewards(props) {
                                     <CardText>
                                         {reward.prompt}
                                     </CardText>
-                                    <RewardSwitch token={props.twitchAccessToken.access_token} streamerId={props.streamerId} rewardId={reward.id} rewardState={reward.is_enabled} />
+                                    <RewardSwitch token={props.twitchAccessToken.access_token}
+                                        streamerId={props.streamerId}
+                                        rewardId={reward.id}
+                                        rewardState={reward.is_enabled}
+                                    />
                                     <Button>
                                         Change
                                     </Button>

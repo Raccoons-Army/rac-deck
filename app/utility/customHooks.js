@@ -1,16 +1,14 @@
 import { useState } from "react";
 
-//hook para abrir e fechar modals
+// hook for modals
 export function useModal(initialValue) {
     const [show, setShow] = useState(initialValue);
 
     function handleOpen() {
-        // console.log("opening - " + !show);
         setShow(!show);
     }
 
     function handleClose() {
-        // console.log("closing - "+ !show);
 
         setShow(!show);
     }
@@ -23,7 +21,7 @@ export function useModal(initialValue) {
 
 }
 
-//hook para as inputs de forms
+//hook for string inputs
 export function useFormStringInput(initialValue) {
     const [value, setValue] = useState(initialValue);
 
@@ -47,34 +45,51 @@ export function useFormStringInput(initialValue) {
     };
 }
 
-//hook para a input de numeros
-export function useFormNumberInput(initialValue) {
-    const [value, setvalue] = useState(!initialValue ? false : initialValue);
+// hook for number inputs
+export function useFormNumberInput(initialValue, hasMin, hasMax, min, max) {
+    const [value, setvalue] = useState(!initialValue ? 0 : initialValue);
 
-    //handler para onChange da input
+    // confirm if value is on the given range
+    function inRange(value) {
+        let newVal = value;
+
+        // check min
+        if (hasMin) {
+            newVal = value >= min ? value : min
+        }
+
+        // check max
+        if (hasMax) {
+            newVal = newVal <= max ? newVal : max
+        }
+
+        return newVal
+    }
+
+    // on change
     function handleChange(e) {
-        setvalue(e.target.value);
+        setvalue(inRange(e.target.value));
     }
 
-    //func pra dar load das de um valor
-    function handleLoad(valor) {
-        setvalue(valor);
+    // load value
+    function handleLoad(value) {
+        setvalue(inRange(value));
     }
 
-    //func para resetar o valor
+    // reset value
     function handleReset() {
-        setvalue(false);
+        setvalue(hasMin ? min : 0);
     }
 
     return {
         value,
-        handleOnChange,
+        handleChange,
         handleLoad,
         handleReset,
     };
 }
 
-//hook para as inputs de forms
+// hook for switch inputs
 export function useFormSwitchInput(initialValue) {
     const [value, setValue] = useState(initialValue);
 
@@ -87,7 +102,7 @@ export function useFormSwitchInput(initialValue) {
     }
 
     function handleReset() {
-        setValue("");
+        setValue(false);
     }
 
     return {
@@ -99,7 +114,7 @@ export function useFormSwitchInput(initialValue) {
 }
 
 
-// select box
+// hook for select boxes
 export function useFormSelectBox(options, initialValue) {
 
     const [value, setValue] = useState(initialValue);
