@@ -7,7 +7,7 @@ import { serialize } from 'cookie';
 
 // before the page loads, pass user access token value as 
 export async function getServerSideProps(context) {
-    
+
     let props = {};
 
     // if it has twitch access token on a cookie
@@ -54,6 +54,35 @@ export default function Rewards(props) {
 
     // revoke access tokens
     const handleDisconnection = async (type) => {
+
+        // remove cookies
+        let endpoint = "";
+
+        if (type == 'discord') {
+
+            // define endpoint
+            endpoint = "/api/discordDisconnect"
+
+            // set button to false
+            setIsDiscordConnected(false)
+
+        } else {
+
+            // define endpoint
+            endpoint = "/api/twitchDisconnect"
+
+            // set button to false
+            setIsTwitchConnected(false);
+        }
+
+        // call api to remove cookie
+        try {
+            const response = await axios.post(endpoint);
+
+        } catch (error) {
+            console.error(error);
+        }
+
         try {
             const response = await axios.post(
                 type == 'discord' ? 'https://discord.com/api/oauth2/token/revoke' : 'https://id.twitch.tv/oauth2/revoke',
@@ -67,39 +96,10 @@ export default function Rewards(props) {
                     }
                 }
             );
-
-            // check if revoked
-            if (response.status == 200) {
-                let endpoint = "";
-
-                if (type == 'discord') {
-
-                    // define endpoint
-                    endpoint = "/api/discordDisconnect"
-
-                    // set button to false
-                    setIsDiscordConnected(false)
-
-                } else {
-
-                    // define endpoint
-                    endpoint = "/api/twitchDisconnect"
-
-                    // set button to false
-                    setIsTwitchConnected(false);
-                }
-
-                // call api to remove cookie
-                try {
-                    const response = await axios.post(endpoint);
-
-                } catch (error) {
-                    console.error(error);
-                }
-            }
         } catch (error) {
             console.error(error)
         }
+
 
     }
 
@@ -119,6 +119,9 @@ export default function Rewards(props) {
 
             <p>
                 Connect with your accounts to unlock the respective pages and its functionalities
+            </p>
+            <p>
+                ⚠️ Refresh tokens is still to be done! ⚠️
             </p>
 
             {isDiscordConnected ?

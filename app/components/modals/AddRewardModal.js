@@ -16,7 +16,7 @@ export default function AddRewardModal({ show, close, token, streamerId, reloadC
 
 
     const rewardName = useFormStringInput("");
-    const rewardCost = useFormNumberInput(0, true, true, 1, 1000000000000000000000n);
+    const rewardCost = useFormNumberInput(1, true, true, 1, 1000000000000000000000n);
     const rewardBgColor = useFormStringInput("");
     const [rewardEnabled, setRewardEnabled] = useState(false);
     const [hotkey, setHotkey] = useState("");
