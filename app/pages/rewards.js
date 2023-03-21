@@ -66,6 +66,29 @@ export default function Rewards(props) {
         setRewards(await getTwitchRewards(streamerId, token))
     }
 
+    // handle to delete a reward
+    const handleDelete = async (rewardId) => {
+
+        try {
+            const response = await axios.delete('https://api.twitch.tv/helix/channel_points/custom_rewards', {
+                params: {
+                    'broadcaster_id': props.streamerId,
+                    'id': rewardId
+                },
+                headers: {
+                    'Authorization': 'Bearer ' + props.twitchAccessToken.access_token,
+                    'Client-Id': process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID
+                }
+            });
+
+            // if deleted, reload content
+            if (response.status === 204) reloadContent(props.streamerId, props.twitchAccessToken.access_token)
+
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <>
@@ -87,8 +110,10 @@ export default function Rewards(props) {
             {/*Add custom reward */}
             <Button type='button' color='success' onClick={modalAddReward.handleOpen}>Add custom reward</Button>
 
+            <br /><br />
+
             <CardGroup>
-                {rewards?.map((reward) => {
+                {Object.keys(rewards).length !== 0 ? rewards?.map((reward) => {
                     return (
                         <Col key={reward.id} md={3} style={{ padding: 2 }} lg={3} sm={3} xs={8}>
                             <Card >
@@ -117,14 +142,24 @@ export default function Rewards(props) {
                                         rewardId={reward.id}
                                         rewardState={reward.is_enabled}
                                     />
+                                    <hr></hr>
                                     <Button>
                                         Change
+                                    </Button>
+
+                                    <Button color='danger' onClick={() => handleDelete(reward.id)}>
+                                        Delete
                                     </Button>
                                 </CardBody>
                             </Card>
                         </Col>
                     )
-                })}
+                }) :
+                    <>
+                        {/* eslint-disable-next-line react/no-unescaped-entities */}
+                        <h4>You don't have custom rewards</h4>
+                    </>
+                }
             </CardGroup>
 
         </>
