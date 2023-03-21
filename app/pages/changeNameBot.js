@@ -15,10 +15,10 @@ import { useFormStringInput, useFormSwitchInput, useFormSelectBox, useModal } fr
 // server side
 export const getServerSideProps = withAuthDiscord(context => {
     let props = {}
-    
+
     // define props to sidebar read them
-    props.twitchAccessToken = context.req.cookies.twitchAcessTokenInfo ? JSON.parse(context.req.cookies.twitchAcessTokenInfo) : {};
-    props.discordAccessToken = context.req.cookies.discordAcessTokenInfo ? JSON.parse(context.req.cookies.discordAcessTokenInfo) : {};
+    props.twitchAccessToken = context.req.cookies.twitchAcessTokenInfo ? JSON.parse(context.req.cookies.twitchAcessTokenInfo) : null;
+    props.discordAccessToken = context.req.cookies.discordAcessTokenInfo ? JSON.parse(context.req.cookies.discordAcessTokenInfo) : null;
 
     return { props };
 });
@@ -30,7 +30,8 @@ export default function ChangeNameBot() {
     const botToken = useFormStringInput("test")
     const changeOnStart = useFormSwitchInput(false);
     const botMode = useFormSelectBox(["Nick", "Channel"], "Nick")
-
+    const [hotkey, setHotkey] = useState("");
+    
     // nick info
     const discordId = useFormStringInput("")
     const changeOnAllServers = useFormSwitchInput(false);
@@ -79,6 +80,8 @@ export default function ChangeNameBot() {
                         fade={false}
                         // modalTransition={Transiti}
                         botMode={botMode.value}
+                        show={modalAddHotkey.show}
+                        close={modalAddHotkey.handleClose}
                     />
                 )
             }
@@ -133,7 +136,7 @@ export default function ChangeNameBot() {
                         <Label for="resetHotkey">
                             Reset Hotkey
                         </Label>
-                        <HotkeyInput />
+                        <HotkeyInput hotkey={hotkey} setHotkey={setHotkey} />
 
                     </Col>
                     <Col md={3}>

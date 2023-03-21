@@ -3,11 +3,10 @@ import React, { useRef, useState } from 'react';
 // components
 import { Input, InputGroup, Button } from 'reactstrap';
 
-export default function HotkeyInput() {
+export default function HotkeyInput({hotkey, setHotkey}) {
 
 
     const [inputRef, setInputFocus] = useFocus()
-    const [hotkey, setHotkey] = useState("")
     const [isRecording, setIsRecording] = useState(false)
 
     // record hotkeys handle

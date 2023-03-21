@@ -3,67 +3,30 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 // components
 import { Button } from 'reactstrap';
+import { serialize } from 'cookie';
 
 // before the page loads, pass user access token value as 
 export async function getServerSideProps(context) {
 
     let props = {};
+
     // if it has twitch access token on a cookie
     if (context.req.cookies.twitchAcessTokenInfo) {
-        // parse cookie
+        // parse cookies
         const twitchAccessToken = JSON.parse(context.req.cookies.twitchAcessTokenInfo)
 
-        // gets the user info
-        try {
-            const response = await axios.get(
-                'https://api.twitch.tv/helix/users',
-                {
-                    headers: {
-                        'Authorization': 'Bearer ' + twitchAccessToken.access_token,
-                        'Client-Id': process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID
-                    }
-                }
-            );
-
-            // console.log(response.data);
-            props.twitchAccessToken = twitchAccessToken.access_token;
-
-
-        } catch (error) {
-            // console.error(error);
-
-        }
-
-        // pass it to props}
+        // pass it to props
+        props.twitchAccessToken = twitchAccessToken.access_token;
     }
 
     // if it has discord access token on a cookie
     if (context.req.cookies.discordAcessTokenInfo) {
-        // parse cookie
+        // parse cookies
         const discordAccessToken = JSON.parse(context.req.cookies.discordAcessTokenInfo)
 
-        // gets the user info
-        try {
-            const response = await axios.get(
-                'https://discord.com/api/users/@me',
-                {
-                    headers: {
-                        'Authorization': 'Bearer ' + discordAccessToken.access_token,
-                        'Client-Id': process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID
-                    }
-                }
-            );
+        // pass it to props
+        props.discordAccessToken = discordAccessToken.access_token;
 
-            // console.log(response.data);
-
-            props.discordAccessToken = discordAccessToken.access_token;
-
-        } catch (error) {
-            // console.error(error);
-
-        }
-
-        // pass it to props}
     }
 
     return { props };
@@ -85,12 +48,40 @@ export default function Rewards(props) {
 
     // twitch
     const handleTwitchConnection = async (state) => {
-        const newWindow = window.open(`https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=http://localhost:3000/api/twitchAuth&scopes=channel%3Aread%3Aredemptions%20channel%3Aread%3Aredemptions%20user%3Aread%3Aemail`, 'noopener,noreferrer')
+        const newWindow = window.open(`https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=http://localhost:3000/api/twitchAuth&scope=channel%3Amanage%3Aredemptions%20user%3Aread%3Aemail`, 'noopener,noreferrer')
         if (newWindow) newWindow.opener = null
     }
 
     // revoke access tokens
     const handleDisconnection = async (type) => {
+
+        // remove cookies
+        let endpoint = "";
+
+        if (type == 'discord') {
+
+            // define endpoint
+            endpoint = "/api/discordDisconnect"
+
+            // set button to false
+            setIsDiscordConnected(false)
+
+        } else {
+
+            // define endpoint
+            endpoint = "/api/twitchDisconnect"
+
+            // set button to false
+            setIsTwitchConnected(false);
+        }
+
+        // call api to remove cookie
+        try {
+            const response = await axios.post(endpoint);
+
+        } catch (error) {
+            console.error(error);
+        }
 
         try {
             const response = await axios.post(
@@ -105,39 +96,10 @@ export default function Rewards(props) {
                     }
                 }
             );
-
-            // check if revoked
-            if (response.status == 200) {
-                let endpoint = "";
-
-                if (type == 'discord') {
-
-                    // define endpoint
-                    endpoint = "/api/discordDisconnect"
-
-                    // set button to false
-                    setIsDiscordConnected(false)
-
-                } else {
-
-                    // define endpoint
-                    endpoint = "/api/twitchDisconnect"
-
-                    // set button to false
-                    setIsTwitchConnected(false);
-                }
-
-                // call api to remove cookie
-                try {
-                    const response = await axios.post(endpoint);
-
-                } catch (error) {
-                    console.error(error);
-                }
-            }
         } catch (error) {
             console.error(error)
         }
+
 
     }
 
@@ -157,6 +119,9 @@ export default function Rewards(props) {
 
             <p>
                 Connect with your accounts to unlock the respective pages and its functionalities
+            </p>
+            <p>
+                ⚠️ Refresh tokens is still to be done! ⚠️
             </p>
 
             {isDiscordConnected ?

@@ -5,11 +5,11 @@ import { serialize } from 'cookie';
 // twitch auth redirects to this endpoint 
 export default async function handler(req, res) {
 
-  let response = ""
+  let responsePost = ""
 
   // gets acess token
   try {
-    response = await axios.post(
+    responsePost = await axios.post(
       'https://id.twitch.tv/oauth2/token',
       `client_id=${process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID}&client_secret=${process.env.NEXT_PUBLIC_TWITCH_CLIENT_SECRET}&code=${req.query.code}&grant_type=authorization_code&redirect_uri=http://localhost:3000/connections`,
       {
@@ -19,18 +19,42 @@ export default async function handler(req, res) {
       }
     );
 
-    // saves token in a cookie
-    res.setHeader('Set-Cookie', serialize('twitchAcessTokenInfo',  JSON.stringify(response.data), { path: '/' }));
+    // gets the streamer info
+    let responseGet = ""
+    try {
+      responseGet = await axios.get(
+        'https://api.twitch.tv/helix/users',
+        {
+          headers: {
+            'Authorization': 'Bearer ' + responsePost.data.access_token,
+            'Client-Id': process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID
+          }
+        }
+      );
 
-    // redirects to connections page
-    return res.status(200).redirect(307, `/connections`)
+      // saves token and streamer data in cookies
+      res.setHeader('Set-Cookie', [
+        serialize('twitchAcessTokenInfo', JSON.stringify(responsePost.data), { httpOnly: true, path: '/' }),
+        serialize('streamerData', JSON.stringify(responseGet.data.data[0]), { httpOnly: true, path: '/' })
+      ]);
+
+
+      // redirects to connections page with success
+      return res.status(200).redirect(307, `/connections`)
+
+    } catch (error) {
+      handleError(res, error);
+    }
 
 
   } catch (error) {
-    console.error(error);
-    return res.status(500).redirect(307, "/");
-
+    handleError(res, error);
   }
 
 
+}
+
+const handleError = (res, error) => {
+  console.error(error);
+  return res.status(500).redirect(307, "/connections");
 }

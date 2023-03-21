@@ -10,18 +10,17 @@ import HotkeyInput from '../others/HotkeyInput';
 // custom hooks
 import { useModal, useFormStringInput } from "@/utility/customHooks";
 
-export default function AddHotkeyModal({ ...props }) {
-
-    const modal = useModal(true);
+export default function AddHotkeyModal({ show, close, ...props }) {
 
     const channel = useFormStringInput("");
     const changeOnAllServers = useState();
     const nickOrName = useFormStringInput("");
-
+    const [hotkey, setHotkey] = useState("");
+    
     return (
         <>
-            <Modal size='lg' isOpen={modal.show} toggle={modal.handleClose} {...props}>
-                <ModalHeader toggle={modal.handleClose}>Add Hotkey - {props.botMode}</ModalHeader>
+            <Modal size='lg' isOpen={show} toggle={close} {...props}>
+                <ModalHeader toggle={close}>Add Hotkey - {props.botMode}</ModalHeader>
                 <ModalBody>
                     <Form>
                         <Row>
@@ -75,16 +74,19 @@ export default function AddHotkeyModal({ ...props }) {
                                 </Label>
                                 <HotkeyInput
                                     id="botToken"
-                                    name="botToken" />
+                                    name="botToken"
+                                    hotkey={hotkey}
+                                    setHotkey={setHotkey}
+                                />
                             </FormGroup>
                         </Row>
                     </Form>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="primary" onClick={modal.handleClose}>
+                    <Button color="primary" onClick={close}>
                         Add
                     </Button>{' '}
-                    <Button color="secondary" onClick={modal.handleClose}>
+                    <Button color="secondary" onClick={close}>
                         Cancel
                     </Button>
                 </ModalFooter>
