@@ -10,6 +10,7 @@ import { CardGroup, Card, CardBody, CardTitle, CardSubtitle, CardText, Button, C
 import Image from 'next/image'
 import RewardSwitch from '@/components/others/RewardSwitch'
 import AddRewardModal from '@/components/modals/AddRewardModal';
+import ChangeRewardModal from '@/components/modals/ChangeRewardModal';
 
 // server side
 export const getServerSideProps = withAuthTwitch(async (context) => {
@@ -59,7 +60,9 @@ export default function Rewards(props) {
 
     // add hotkey modal
     const modalAddReward = useModal(false);
+    const modalChangeReward = useModal(false);
     const [rewards, setRewards] = useState(props.rewards);
+    const [currentReward, setCurrentReward] = useState({});
 
     // callback to send to childs components
     const reloadContent = async (streamerId, token) => {
@@ -90,6 +93,15 @@ export default function Rewards(props) {
         }
     }
 
+    // handle change reward
+    const handleChangeReward = (reward) => {
+        // set current reward
+        setCurrentReward(reward);
+
+        // open modal
+        modalChangeReward.handleOpen();
+    }
+
     return (
         <>
             {/*Modals*/}
@@ -101,6 +113,20 @@ export default function Rewards(props) {
                         streamerId={props.streamerId}
                         show={modalAddReward.show}
                         close={modalAddReward.handleClose}
+                        reloadContent={reloadContent}
+                    // modalTransition={Transiti}
+                    />
+                )
+            }
+            {
+                modalChangeReward.show && (
+                    <ChangeRewardModal
+                        fade={false}
+                        token={props.twitchAccessToken.access_token}
+                        streamerId={props.streamerId}
+                        reward={currentReward}
+                        show={modalChangeReward.show}
+                        close={modalChangeReward.handleClose}
                         reloadContent={reloadContent}
                     // modalTransition={Transiti}
                     />
@@ -143,8 +169,8 @@ export default function Rewards(props) {
                                         rewardState={reward.is_enabled}
                                     />
                                     <hr></hr>
-                                    <Button>
-                                        Change
+                                    <Button onClick={()=>{handleChangeReward(reward)}}>
+                                        Edit
                                     </Button>
 
                                     <Button color='danger' onClick={() => handleDelete(reward.id)}>

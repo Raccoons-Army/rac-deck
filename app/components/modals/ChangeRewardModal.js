@@ -12,19 +12,19 @@ import HotkeyInput from '../others/HotkeyInput';
 // custom hooks
 import { useModal, useFormStringInput, useFormNumberInput } from "@/utility/customHooks";
 
-export default function AddRewardModal({ show, close, token, streamerId, reloadContent, ...props }) {
+export default function ChangeRewardModal({ show, close, token, streamerId, reloadContent, reward, ...props }) {
 
 
-    const rewardName = useFormStringInput("");
-    const rewardCost = useFormNumberInput(1, true, true, 1, 1000000000000000000000n);
-    const rewardBgColor = useFormStringInput("");
-    const [rewardEnabled, setRewardEnabled] = useState(false);
+    const rewardName = useFormStringInput(reward.title);
+    const rewardCost = useFormNumberInput(reward.cost, true, true, 1, 1000000000000000000000n);
+    const rewardBgColor = useFormStringInput(reward.background_color);
+    const [rewardEnabled, setRewardEnabled] = useState(reward.is_enabled);
     const [hotkey, setHotkey] = useState("");
 
     // handle reward submission
-    const handleSubmitCustomReward = async () => {
+    const handleChangeCustomReward = async () => {
         try {
-            const response = await axios.post(
+            const response = await axios.patch(
                 'https://api.twitch.tv/helix/channel_points/custom_rewards',
                 {
                     'title': rewardName.value,
@@ -34,7 +34,8 @@ export default function AddRewardModal({ show, close, token, streamerId, reloadC
                 },
                 {
                     params: {
-                        'broadcaster_id': streamerId
+                        'broadcaster_id': streamerId,
+                        'id': reward.id
                     },
                     headers: {
                         'client-id': process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID,
@@ -71,9 +72,9 @@ export default function AddRewardModal({ show, close, token, streamerId, reloadC
     return (
         <>
             <Modal size='lg' isOpen={show} toggle={close} {...props}>
-                <ModalHeader toggle={close}>Add Custom Reward </ModalHeader>
+                <ModalHeader toggle={close}>Change Custom Reward </ModalHeader>
                 <ModalBody>
-                    Sadly Twitch only allows some fields on the creation of a custom reward,
+                    Sadly Twitch only allows some fields on the edition of a custom reward,
                     but don't worry! You can still add/change them on
                     <a target="_blank" style={{ color: 'blue' }} href='https://dashboard.twitch.tv/viewer-rewards/channel-points/rewards'> your dashboard</a>!
                     <br /><br />
@@ -90,6 +91,7 @@ export default function AddRewardModal({ show, close, token, streamerId, reloadC
                                         placeholder="give a name to your reward"
                                         type="text"
                                         onChange={rewardName.handleChange}
+                                        defaultValue={rewardName.value}
                                         required
                                     />
                                 </FormGroup>
@@ -123,6 +125,7 @@ export default function AddRewardModal({ show, close, token, streamerId, reloadC
                                     name="rewardBgColor"
                                     placeholder="color placeholder"
                                     type="color"
+                                    defaultValue={rewardBgColor.value}
                                     onChange={rewardBgColor.handleChange}
                                 />
                             </FormGroup>
@@ -152,8 +155,8 @@ export default function AddRewardModal({ show, close, token, streamerId, reloadC
                     </Form>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="primary" onClick={handleSubmitCustomReward}>
-                        Add
+                    <Button color="primary" onClick={handleChangeCustomReward}>
+                        Edit
                     </Button>{' '}
                     <Button color="secondary" onClick={close}>
                         Cancel
