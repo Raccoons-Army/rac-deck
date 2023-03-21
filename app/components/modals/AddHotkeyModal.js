@@ -87,7 +87,7 @@ export default function AddHotkeyModal({ show, close, ...props }) {
                         Add
                     </Button>{' '}
                     <Button color="secondary" onClick={close}>
-                        Cancel
+                        Close
                     </Button>
                 </ModalFooter>
             </Modal>

@@ -159,7 +159,7 @@ export default function ChangeRewardModal({ show, close, token, streamerId, relo
                         Edit
                     </Button>{' '}
                     <Button color="secondary" onClick={close}>
-                        Cancel
+                        Close
                     </Button>
                 </ModalFooter>
             </Modal>

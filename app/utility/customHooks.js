@@ -135,3 +135,30 @@ export function useFormSelectBox(options, initialValue) {
         handleChange,
     };
 }
+
+// hook for my reactstrap alerts
+export function useAlert() {
+
+    const [props, setProps] = useState({ visible: false, color: '', msg: '', timer: 0 });
+
+    // sets alert props
+    function showAlert(color, msg, timer) {
+        props.visible = true
+        props.color = color
+        props.msg = msg
+        props.timer = timer
+        setProps(props);
+    }
+
+    function dismissAlert() {
+        console.log("closed");
+        props.visible = false;
+        setProps(props)
+    }
+
+    return {
+        props,
+        showAlert,
+        dismissAlert
+    };
+}
